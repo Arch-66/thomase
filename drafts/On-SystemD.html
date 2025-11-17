@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>ThomasE.xyz - On SystemD and the current state of Init Systems.</title>
+        <meta charset="utf-8"/>
+        <link rel="stylesheet" type="text/css" href="../src/style.css">
+        <link rel="icon" href="../res/2467883_08350.gif">
+    </head>
+    <body>
+        <div class="crt">
+        <div class="box">
+        <h1>On SystemD and the current state of Init Systems</h1>
+        <h2>(Why basically all Init Systems suck and what we can do about it.)</h2>
+        <div class="footer">==============================================================================================================</div>
+        <h3>Getting straight to it</h3>
+        <div class="footer">==============================================================================================================</div>
+
+        <p>
+            Every Init System virtually sucks. And, that bullet even goes to SystemD. Now, to quickly weed out the baggage or pre-assumptions about this, I'll state by saying that I do
+            not hate SystemD. I think in terms of it's philosophy and SystemD as an idea is great. I would even go as far as to say that SystemD is the best out of everything else. But, I still
+            never the less think that you shouldn't use it.
+        </p>
+
+        <div class="footer">==============================================================================================================</div>
+        <h3>What is SystemD?</h3>
+        <div class="footer">==============================================================================================================</div>
+        <p>
+            To understand my position on SystemD, It's probably best that you understand a little about the philosophy first things first. SystemD was initially (No pun intended) developed
+            by Lennart Poettering (Who worked at Red Hat at the time). Poettering released a article detailing his upcoming Init system in which he coined "SystemD". I'll link the article
+            <a href="https://0pointer.net/blog/projects/systemd.html">here</a>. I highly recommend you check that out.
+        </p>
+
+        <p>
+            But to put the idea in general gist terms, the entire philosophy is as follows: "Start less, but do more in parallel". Start as few services as possible, and only what is required.
+            And do it all in <a href="https://wiki.osdev.org/Thread">Concurrency.</a> Poettering states:
+
+            <div class="quote">
+                <b><i>
+                    "As mentioned, the central responsibility of an init system is to bring up userspace. And a good init system does that fast. Unfortunately, the traditional SysV init system was not particularly fast.
+
+For a fast and efficient boot-up two things are crucial:
+
+To start less.
+And to start more in parallel.
+What does that mean? Starting less means starting fewer services or deferring the starting of services until they are actually needed. There are some services where we know that they will be required sooner or later (syslog, D-Bus system bus, etc.), but for many others this isn't the case. For example, bluetoothd does not need to be running unless a bluetooth dongle is actually plugged in or an application wants to talk to its D-Bus interfaces. " - <a href="https://0pointer.net/blog/projects/systemd.html">Rethinking PID - [1]</a>
+                </b></i>
+            </div>
+        </p>
+
+        <p>
+            Overall, a very efficient philosophy. Another thing that is important to note is that this idea isn't at all new. The entire project was and still is based on Apple's LaunchD (they're own Init System).
+            Poettering also states:
+        </p>
+
+        <p>
+            <div class="quote">
+                <b><i>
+                    "But first, let's clear a few things up: is this kind of logic new? No, it certainly is not. The most prominent system that works like this is Apple's launchd system: on MacOS the listening of the sockets is pulled out of all daemons and done by launchd. The services themselves hence can all start up in parallel and dependencies need not to be configured for them. And that is actually a really ingenious design, and the primary reason why MacOS manages to provide the fantastic boot-up times it provides. I can highly recommend this video where the launchd folks explain what they are doing. Unfortunately this idea never really took on outside of the Apple camp." <a href="https://0pointer.net/blog/projects/systemd.html">Rethinking PID - [2]</a>
+                </i></b>
+            </div>
+        </p>
+
+        <p>
+            SystemD really boils down to being a general recreation of Apple's LaunchD for GNU/Linux Operating Systems.
+        </p>
+
+        <div class="footer">==============================================================================================================</div>
+        <h3>How does it compare to other Init Systems?</h3>
+        <div class="footer">==============================================================================================================</div>
+        <p>
+            Most other init systems are your usual standard not-so efficient linear system. S6 init is minimalistic, but not very easy to setup. OpenRC is basic, and gentoo specific.
+            They just don't mimic the same efficiency and great philosophy that SystemD does. But, this isn't exactly their fault. There is little to no practical advantage to Upstart, S6, OpenRC or any
+            of these other Init systems other than the fact that they give you a Init system.
+        </p>
+
+        <div class="footer">==============================================================================================================</div>
+        <h3>The Problem with SystemD</h3>
+        <div class="footer">==============================================================================================================</div>
+        <p>
+            The Problem with SystemD comes down these points:
+        </p>
+        <p>
+            <i>
+                <ul>
+                    <li>Who owns SystemD</li>
+                    <li>The implementation of SystemD</li>
+                    <li>The core design of Classical computing</li>
+                    <li>And the communities treatment of SystemD</li>
+                </ul>
+            </i>
+        </p>
+
+        <div class="footer">==============================================================================================================</div>
+        <h3>Who owns SystemD?</h4>
+        <div class="footer">==============================================================================================================</div>
+
+        <p>
+            First things first, who owns it? Well, it's primarily community run. But Redhat has been a major contributor of SystemD along with Lennart who worked there.
+            And, Lennart one of the big managers of who get's to decide to contribute to the source code. Just this alone, I already have an issue with. I've verbally expressed
+            my discontentment with Redhat multiple times (That will get its own WriteUp someday). But my general viewpoint is that Redhat is a very shady company and corporation
+            do NOT and should NOT have any place in the realm of free and open source Software. Take all that I just said with what you will.
+        </p>
+
+        <p>
+            If you read Lennart's post you will probably take note of what's stated in his FAQ:
+        </p>
+
+        <p>
+            <div class="quote">
+                <b><i>
+                    "Is this a Red Hat project?
+No, this is my personal side project. Also, let me emphasize this: the opinions reflected here are my own. They are not the views of my employer, or Ronald McDonald, or anyone else." - <a href="https://0pointer.net/blog/projects/systemd.html">Rethinking PID 1 [3]</a>
+                </i></b>
+            </div>
+
+        </p>
+
+        <p>
+            I'm sorry, but I just don't buy this. It's important to note here that Redhat themselves has directly contributed to the project with Lennart giving them the green light.
+            Imagine being a corporation and finding out that one of your Employees has been the Developer, maintainer, and producer of a huge project that's practically took over the
+            entire standard GNU/Linux Initialization core. You would probably want to figure out some way to maintain ownership of that to a more or less degree. Why? Because they're
+            a corporation and that's what corporations do. Redhat isn't fundamentally different from Google, IBM, Microsoft or any of these companies no matter how much they want you 
+            to think that they're the good guys.
+        </p>
+
+        <p>I don't know Lennart's personal life, nor do I know if he is still affilated with Redhat in any way. But, I am also pointing out the obvious bias in letting Redhat contribute.</p>
+
+        <div class="footer">==============================================================================================================</div>
+        <h3>The implementation of SystemD</h3>
+        <div class="footer">==============================================================================================================</div>
+
+        <p>
+            This won't be so focused on the source code of SystemD, but rather the conceptual workings of the individual components involved with the project.
+            For starters: The noncensential use of automation.
+
+            SystemD's documentation read's:
+        </p>
+
+        <p>
+            <div class="quote">
+                <b><i>
+                    "systemd provides support for automatically reverting back to the previous version of the OS or kernel in case the system consistently fails to boot. The Boot Loader Specification describes how to annotate boot loader entries with a counter that specifies how many attempts should be made to boot it." - <a href="https://systemd.io/AUTOMATIC_BOOT_ASSESSMENT/">SystemD Documentation/Specification [1]</a>
+                </i></b>
+            </div>
+        </p>
+        
+        <p>
+            Now admittedly, this is a bit nitpicky. But having an automatic fallback is actually a bad thing. Imagine having a problem on your system (Which ideally, should be fixed) and now your on a older kernel version
+            With practically no notice. You could argue in favor of being friendly towards "<a href="http://normie.urbanup.com/9652417">Normies</a>". But that's completely
+            counterpoint to what Linux actually is and should be. Linux isn't an operating system for illerate idiots. It's for people who know what they're knowing and are one with
+            the computer.
+        </p>
+
+        <p>
+            Yada yada yada, stuff on who contributes on the project, and why I don't think it's good, etc.
+        </p>
+
+        <div class="footer">==============================================================================================================</div>
+        <h2>The obvious bloat</h2>
+        <div class="footer">==============================================================================================================</div>
+
+        <p>
+            In this particular section, when I say SystemD is bloated, I'm talking about the umbrella term. Whether or not you want to argue if it it's Init System is bloated or not
+            is up to your own judgement. SystemD really refers to a collection of software rather than just simply a Init System. I have no issues on this, except that when the user
+            installs SystemD, they're also (knowingly or not) installing the entire collection. This includes it's own Login manager (Elogind). This is terrible developer practice
+            for a multitude of reasons. I won't rewrite everything, so I highly recommend you check out my writeup: <i>"What is bloat?"</i>
+        </p>
+
+        <div class="footer">==============================================================================================================</div>
+        <h2>The actual implementation of parallelization</h2>
+        <div class="footer">==============================================================================================================</div>
+
+        <p>
+            I illerate more on this in the section: <i>"The core design of classical computing"</i>, but it's worth adding an introduction. Lennart states:
+        </p>
+
+        <p>
+            <div class="quote">
+                <i><b>
+                    "Now, I am aware that some of the issues I pointed out above are in some way mitigated by certain more recent changes in Upstart, particularly condition based syntaxes such as start on (local-filesystems and net-device-up IFACE=lo) in Upstart rule files. However, to me this appears mostly as an attempt to fix a system whose core design is flawed."
+                </b></i>
+            </div>
+        </p>
+
+        <p>
+            Ironically, this is how I feel about SystemD to a more or less degree. The state of paralleization is just a solution to hardware whose core design is flawed.
+        </p>
+
+        <div class="footer">==============================================================================================================</div>
+        <h3>The core design of classical computing</h3>
+        <div class="footer">==============================================================================================================</div>
+
+        <p>
+            What i'm generally stating is this: SystemD is a software solution to a hardware problem. Or more precisely, a bandaid. You need to understand that SystemD's most
+            essential components for Non-Linearization and acting in parallel is: <i>Concurrency</i>. Concurrency is a big and wide topic in the realm of Operating System Development (Yes that's a thing),
+            So, I won't be going too indepth into it. But in general, Concurrency is being able to diverge from the "One at a time" approach that much older OS's often dealt with. That is,
+            being able to run 2 or more programs at the exact sametime with their own tasks. Concurrency is <i><b>NOT</b></i> to be confused with virtualization which focuses on the illusion of 2
+            rather then the actual practice.
+        </p>
+
+        <p>
+            Concurrency as it turns out, is a difficult thing to do even today. This is to do with the nature of our current computers today. To mentally demonstrate, I introduce the 
+            Half adder. If you know anything about wiring and circuits or messed around with Redstone in MC, you'll know what I'm talking about. Half-Adders (and Full adders, might I add)
+            Are the 'Hello World' to doing computing from scratch.
+        </p>
+
+        <p>
+            They're what is sounds, they add numbers. (Half adders generally referring to only being able to add 1-2 bits). Anywho, if you messed around with them, you'll know that even a tiny
+            calculation take's up the entire piece and wiring set. 1 + 1 require's full power just to solve. And that is due to it's linear nature. I mention Hald adders because on a very
+            basic low-level, this is what even modern day 'complicated' computers are. Just a collection of half-adders that do a bunch of operations. Loading a program needs full access to the
+            hardware, CPU, hard drive, and of course the RAM.
+        </p>
+
+        <p>
+            You get the point, but nonetheless, computers can still do the job of running more than 2 (And letting the user watch more than 2). How is this Black Magic accomplished?
+            Through Threads! Threads are unfortunately it's own bogus as well (It's can's of worms all the way down!). Threads serve as the main software solution to our hardware problem
+            we just pointed out. Thread's are sort of like processes except that processes have their own entry point (in which the CPU detects to load). Thread's on the other hand have a multitude
+            of not only entrypoints, but also PGBS with their own registers (Think of those as containers storing data) involved.
+        </p>
+
+        <p>
+            What does this all mean in practice? Can I magically start playing 2 songs at the sametime like a maniac? Of course not, you need something known as a Context Switch.
+            Without going into all the technical details of how such a feat is implemented and achieved, a context-switch simply just means that the Operating System is constantly
+            switching between who to run at a rapid speed. For instance, let's say you're particular crazy and you have Luke Smith's video on "The Economy is fake" on the left side of
+            your screen. Then, one of Adolf Hitler's speeches on the right side.
+        </p>
+
+        <p>
+            What the operating system will do is constantly switch decisions on who get's to run. Luke smith's for a microsecond before switching to Adolf hitler's for another (Thank goodness your attention span isn't that short). The byproduct of this
+            is that you get an illusion of the programs running more than 2. You get the best of both worlds! Now if you've been following, you'll note that this is also an illusion. Not only is it
+            a illusion, it has its own weird little issues.
+        </p>
+
+        <p>
+            To give you an example of one, Threads are often 'shared'. What this means is, You can have multiple threads on one process. This is on it's own right a problem. If multiple Threads
+            are traversing along the program's code and lands on the instruction to change a register meanwhile the other thread reaches the exact same instruction, you have a conflict.
+        </p>
+
+        <p>So, so far I've made it clear on my point. Classical computing is flawed, threads are a software issue to a hardware rooted problem. How does systemD attempt to solve all this?
+            Traditionally, these are done through PCBS (Process Control blocks). These are software structures that help maintain which thread and process can run and go. In SystemD,
+            these are called CGI's (Control Group Interfaces). How exactly is this done? This is where PID1 comes into place. On every single unix and unix-like system there is a 
+            special reserved process known as PID1. PID1 in the case of SystemD is where all things CGI is done at.
+        </p>
+
+        <p>
+            The general gist is, all processes that user needs and wants started upon boot will be put into one of these Interfaces. The CGI will then handle who exactly gets to run, start, etc.
+            If 2 or more processes are trying to run at the exact sametime, one of them will be blocked to process then the other unblocked and eventually both get 'hooked'. This seems like a good
+            idea, what's so bad about it? Well, it's not true paralleization. It's still ultimately an illusion no matter how convincing it looks. A approach like this has the innate problems that I
+            described above and CGIs and PCBS simply just cover for it. You can imagine now that this approach naturally results in plenty of bugs.
+        </p>
+
+        <p>
+            On top of this, setting up the CGI upon boot is actually a bit of a lengthy process. This is especially true when your dealing with Server and desktop systems which might require
+            tons of processes to get up and running. Ultimately, a init system in this current realm of classical computing can only be fast or "parallel". Both is nearly impossible without
+            some weird mess of a solution and a super stripped down system.
+        </p>
+
+        <div class="footer">==============================================================================================================</div>
+        <h3>The community treatment of SystemD</h3>
+        <div class="footer">==============================================================================================================</div>
+
+        <p>
+            SystemD has become an incredibly widespread and adopted Init system in practically every single distribution. When you install Linux mint, ubuntu,
+            manjaro, etc you can bet your ass you have SystemD on it and guess correctly 98.08% of the time. Even the most popular DLY distribution, Arch is bundled
+            with SystemD. Sure, you could always replace it with a different init system but then you'll have to make up for potentially nuking your desktop environment.
+        </p>
+
+        <p>
+            The only distributions that are free from this Disease is Gentoo, and void linux, and artix. and probably a few others that I didn't bother to name.
+            <div class="png">
+            <img src="../res/ArtixGnome.PNG"> <br>
+            <a href="https://artixlinux.org/news.php#GNOME_Desktop_Environment_No_Longer_Supported">An Example of Desktop environments breaking due to a lack of SystemD.</a>
+            </div>
+        </p>
+
+        <p>
+            This isn't just bad, it's almost borderline problematic. Forcing your userbase to use a particular part a system so they can use your software is just classic terrible
+            Developer Incompetency.
+        </p>
+
+        <div class="footer">==============================================================================================================</div>
+        <h3>Arguments against SystemD's 'hate'</h3>
+        <div class="footer">==============================================================================================================</div>
+
+        <p>
+            This section will be partially divided into arguments against the hate of SystemD, and then counter arguments against those arguments. Essentially what I did in my talk <a href="file:///C:/Users/Thomas/Documents/ThomasE.xyz/src/On-MIT.html">of permissable licenses.</a>
+            I will mostly be using this <a href="https://www.youtube.com/watch?v=o_AIw9bGogo">video (The Tragedy of systemd)</a> to make my counter arguments. Speaker is Benno Rice,
+            has been one of the core FreeBSD Developers. Now admittedly, some of these are so bad that I can't even tell if they're arguments or just general commentary on the consentus in the Linux community.
+            Either way, it's bad commentary.
+        </p>
+
+        <h3>"It violates Unix Philosophy"</h3>
+
+        <p>
+            Benno states that there is a underlying assumption that SystemD is it's own thing.
+        </p>
+
+        <p>
+            Admittedly, this is true. Currently SystemD has been reformed to a umbrella term to refer to a set of software rather than it's own actual thing. But keep in the mind that this
+            presentation is in the context of a Init system. It's a bit dishonest when that's clearly made but then redirect it to "Yeah, well it's a set of things, not it's own thing". Which ironically
+            doesn't help the second argument that he addresses:
+        </p>
+
+        <h3>"It's monolithic and bloated"</h3>
+
+        <p>
+            Benno says nothing of substance and just says "I'm not particular worried about that".
+        </p>
+
+        <p>
+            What, This guy was a FreeBSD Developer? You absolutely should be worried about that. SystemD on it's own Init system may not exactly be monolithic, but is certainly
+            bloated. Any system or package that gives the user binaries in which they may not need is bloat. Simple as that.
+        </p>
+
+        <h3>"It's buggy!"</h3>
+
+        <p>
+            Benno simply states: "It's software". Also says: "They're also seems to be a sub-variant where if you're gonna write an init you have to be this bug free to drive."
+        </p>
+
+        <p>
+            Precisely, Benno. An Init system is very important part of the kernel. There absolutely should be a threshold before a system becomes widely adopted. You're a FreeBSD Developer,
+            you should know this.
+
+            I think I made my point clear on this in the section of classical computing, otherwise this could have a seperate meaning in which that SystemD is just too buggy and unstable.
+            In that case, "It's software" just isn't a good point to counteract that. As a Developer, you have an obligation to build systems and software and even hardware that is stable, reliable,
+            and give's the user what they want. It is the unix philosophy of "Do one thing, and do it well".
+        </p>
+
+        <h3>"I can't stand Lennart poettering"</h3>
+        
+        <p>
+            Admittedly, I'm a bit out of the loop on poettering and the general consentus around him in the Open source Community. But I will say this, who exactly is in charge
+            of a project especially one that is widely adopted <i>does</i> matter. If somebody has little to no abilities in being able to interact with criticism at a reasonable
+            and rational level, they shouldn't be the one who gets to decide what goes in the source code and what doesn't.
+        </p>
+
+        <h3>On contempt culture</h3>
+
+        <p>
+            Benno also argue's that SystemD is simply just change and people don't like it. And it's because of "Contempt culture" that leads to a Halt in Software engineering.
+            I won't justify the Death threats to poettering because there's no reason to. That is incredibly wrong. But I don't agree on Benno's sentiment that a software project is
+            'Lacking' because it doesn't include his favorite init System. He references a article shown as <i><a href="https://blog.aurynn.com/2015/12/16-contempt-culture">Contempt culture</a></i> which is it's own terrible article. See my
+            writeup: <i>A Degree of contempt is good actually</i>.
+        </p>
+        
+        <div class="footer">==============================================================================================================</div>
+        <h2>Summary</h2>
+        <div class="footer">==============================================================================================================</div>
+
+        <p>
+            Overall, I think my point is clear here. SystemD is a software solution to a design that is inherently flawed, Owned by Redhat, and basically nobody should be using it or
+            forcing others to use it. They say (Whoever "they" is) that 90% of americans are deficient in vitamin D (Whatever Vitamin D is). Well I hope that becomes true of 90% of distributions
+            we see today. 
+        </p>
+
+        <img src="../res/a92.gif"><img src="../res/norton2.gif"><img src="../res/h40.gif"><img src="../res/y53.gif"><img src="../res/y29.gif"><img src="../res/k27.gif">
+        <div class="copyright">
+            <img src="../res/footerline.gif">
+            © 2025 ThomasE.xyz (<a href="index.html">ThomasE.xyz</a>)
+        </div>
+        </div>
+    </body>
+</html>
