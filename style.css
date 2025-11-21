@@ -167,7 +167,45 @@
   animation: flicker 0.15s infinite;
 }
 
+body::-webkit-scrollbar {
+  width: 16px; /* Windows 95 scrollbars were quite wide */
+  height: 16px;
+}
+
+body::-webkit-scrollbar-track {
+  background: #C0C0C0; /* The light gray background color */
+  border-left: 1px solid #fff;
+  border-top: 1px solid #fff;
+  border-right: 1px solid #808080;
+  border-bottom: 1px solid #808080;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: #C0C0C0; /* The 'silver' color of the draggable part */
+  border-left: 1px solid #fff;
+  border-top: 1px solid #fff;
+  border-right: 1px solid #808080;
+  border-bottom: 1px solid #808080;
+}
+
+body::-webkit-scrollbar-button {
+  background: #C0C0C0;
+  height: 16px; /* Square buttons */
+  width: 16px;
+  /* Add borders to the buttons for the 3D effect */
+  border-left: 1px solid #fff;
+  border-top: 1px solid #fff;
+  border-right: 1px solid #808080;
+  border-bottom: 1px solid #808080;
+}
+
+/* Optional: style the corner where horizontal and vertical scrollbars meet */
+body::-webkit-scrollbar-corner {
+  background: #C0C0C0;
+}
+
 body {
+    cursor: url("/res/cursor.cur"), auto;
     color: white;
     background: black;
     background-image: url('res/StarfieldSimulation.gif');
